@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SKILLFLOW — онлайн-курсы с пожизненным доступом</title>
+<meta name="description" content="Практические онлайн-курсы по программированию, дизайну, маркетингу и нейросетям. Мгновенный доступ в Telegram.">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource-variable/manrope/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource-variable/unbounded/index.css">
+<style>
+:root{
+  --bg:#06070d; --bg2:#0a0d18; --panel:rgba(255,255,255,.045);
+  --line:rgba(255,255,255,.09); --line2:rgba(255,255,255,.16);
+  --txt:#eef1ff; --muted:#98a2c3;
+  --v:#8b5cf6; --c:#22d3ee; --p:#f472b6;
+  --grad:linear-gradient(92deg,#8b5cf6 0%,#6366f1 35%,#22d3ee 100%);
+  --grad-soft:linear-gradient(135deg,rgba(139,92,246,.16),rgba(34,211,238,.12));
+  --r:22px;
+  --shadow:0 24px 60px -24px rgba(0,0,0,.7);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg); color:var(--txt);
+  font-family:'Manrope Variable',system-ui,sans-serif;
+  font-size:16px; line-height:1.65; overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:rgba(139,92,246,.45); color:#fff}
+::-webkit-scrollbar{width:10px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:linear-gradient(#8b5cf6,#22d3ee); border-radius:8px}
+h1,h2,h3,.disp{font-family:'Unbounded Variable',sans-serif; font-weight:700; line-height:1.15; letter-spacing:-.01em}
+img{display:block; max-width:100%}
+a{color:inherit; text-decoration:none}
+button{font-family:inherit; cursor:pointer; border:none; background:none; color:inherit}
+.wrap{width:min(1180px,92%); margin:0 auto}
+.grad-text{background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent}
+
+/* ---------- noise + progress ---------- */
+.noise{position:fixed; inset:0; z-index:3; pointer-events:none; opacity:.05; mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+#progress{position:fixed; top:0; left:0; height:3px; width:0; z-index:60;
+  background:var(--grad); box-shadow:0 0 14px rgba(139,92,246,.8)}
+
+/* ---------- header ---------- */
+header{position:fixed; top:0; left:0; right:0; z-index:50; transition:.35s;
+  background:rgba(6,7,13,.35); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px)}
+header.scrolled{background:rgba(6,7,13,.78); border-bottom:1px solid var(--line); backdrop-filter:blur(18px)}
+.nav{display:flex; align-items:center; justify-content:space-between; padding:16px 0; transition:.3s}
+header.scrolled .nav{padding:11px 0}
+.logo{display:flex; align-items:center; gap:10px; font-family:'Unbounded Variable'; font-weight:800; font-size:19px; letter-spacing:.02em}
+.logo-mark{width:36px; height:36px; border-radius:11px; display:grid; place-items:center; background:var(--grad);
+  box-shadow:0 6px 22px -6px rgba(139,92,246,.9)}
+.logo-mark svg{width:18px; height:18px; fill:#fff}
+.logo em{font-style:normal; background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent}
+.nav-links{display:flex; gap:30px; font-size:14.5px; font-weight:600; color:var(--muted)}
+.nav-links a{position:relative; transition:.25s}
+.nav-links a::after{content:''; position:absolute; left:0; bottom:-6px; width:0; height:2px; background:var(--grad); border-radius:2px; transition:.3s}
+.nav-links a:hover{color:#fff}
+.nav-links a:hover::after{width:100%}
+.btn{display:inline-flex; align-items:center; justify-content:center; gap:10px; font-weight:700; border-radius:14px;
+  padding:14px 26px; font-size:15px; position:relative; overflow:hidden; transition:.3s; white-space:nowrap}
+.btn svg{width:18px; height:18px; fill:currentColor; flex:none}
+.btn-tg{background:var(--grad); color:#fff; box-shadow:0 10px 30px -10px rgba(99,102,241,.85); cursor:pointer}
+.btn-tg::after{content:''; position:absolute; top:0; left:-80%; width:50%; height:100%; transform:skewX(-22deg);
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.45),transparent); transition:.6s}
+.btn-tg:hover{transform:translateY(-3px); box-shadow:0 18px 40px -12px rgba(99,102,241,1)}
+.btn-tg:hover::after{left:130%}
+.btn-tg:active{transform:translateY(0) scale(.98)}
+.btn-ghost{border:1px solid var(--line2); color:var(--txt); background:rgba(255,255,255,.04); backdrop-filter:blur(8px)}
+.btn-ghost:hover{background:rgba(255,255,255,.09); border-color:rgba(255,255,255,.3); transform:translateY(-3px)}
+.btn-sm{padding:10px 20px; font-size:14px; border-radius:12px}
+
+/* ---------- hero ---------- */
+.hero{position:relative; padding:170px 0 90px; overflow:hidden}
+.orb{position:absolute; border-radius:50%; filter:blur(95px); pointer-events:none; z-index:0}
+.orb-1{width:520px; height:520px; background:rgba(139,92,246,.34); top:-140px; left:-140px; animation:drift 14s ease-in-out infinite alternate}
+.orb-2{width:460px; height:460px; background:rgba(34,211,238,.22); top:10%; right:-160px; animation:drift 17s ease-in-out infinite alternate-reverse}
+.orb-3{width:380px; height:380px; background:rgba(244,114,182,.16); bottom:-160px; left:32%; animation:drift 20s ease-in-out infinite alternate}
+@keyframes drift{from{transform:translate(0,0) scale(1)} to{transform:translate(50px,40px) scale(1.12)}}
+.hero-grid{position:relative; z-index:1; display:grid; grid-template-columns:1.05fr .95fr; gap:60px; align-items:center}
+.pill{display:inline-flex; align-items:center; gap:9px; padding:9px 18px; border-radius:100px; font-size:13px; font-weight:700;
+  border:1px solid var(--line2); background:rgba(255,255,255,.05); backdrop-filter:blur(8px); color:#cdd4f2}
+.pill .dot{width:8px; height:8px; border-radius:50%; background:#34d399; box-shadow:0 0 0 0 rgba(52,211,153,.7); animation:pulse 2s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 9px rgba(52,211,153,0)} 100%{box-shadow:0 0 0 0 rgba(52,211,153,0)}}
+.hero h1{font-size:clamp(34px,4.6vw,60px); margin:22px 0 20px; font-weight:800}
+.hero p.lead{color:var(--muted); font-size:clamp(15px,1.3vw,18px); max-width:520px; margin-bottom:34px}
+.hero-cta{display:flex; gap:16px; flex-wrap:wrap}
+.hero-note{margin-top:22px; display:flex; align-items:center; gap:14px; color:var(--muted); font-size:13.5px}
+.avatars{display:flex}
+.avatars span{width:34px; height:34px; border-radius:50%; border:2px solid var(--bg); margin-left:-10px; display:grid; place-items:center;
+  font-size:12px; font-weight:800; color:#fff}
+.avatars span:first-child{margin-left:0}
+.av1{background:linear-gradient(135deg,#8b5cf6,#6366f1)} .av2{background:linear-gradient(135deg,#22d3ee,#0ea5e9)}
+.av3{background:linear-gradient(135deg,#f472b6,#ef4444)} .av4{background:linear-gradient(135deg,#34d399,#059669)}
+.hero-visual{position:relative}
+.hero-frame{border-radius:28px; overflow:hidden; border:1px solid var(--line2); box-shadow:var(--shadow); position:relative;
+  background:var(--bg2)}
+.hero-frame img{width:100%; height:100%; object-fit:cover; animation:breathe 12s ease-in-out infinite alternate}
+@keyframes breathe{from{transform:scale(1)} to{transform:scale(1.08)}}
+.hero-frame::after{content:''; position:absolute; inset:0; background:linear-gradient(180deg,transparent 55%,rgba(6,7,13,.55))}
+.chip-float{position:absolute; display:flex; align-items:center; gap:11px; padding:13px 18px; border-radius:16px;
+  background:rgba(12,15,28,.62); border:1px solid var(--line2); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+  box-shadow:0 14px 34px -14px rgba(0,0,0,.8); font-size:13.5px; font-weight:700; z-index:2}
+.chip-float small{display:block; font-weight:500; color:var(--muted); font-size:11.5px}
+.chip-float .ico{width:36px; height:36px; border-radius:11px; display:grid; place-items:center; font-size:17px; flex:none}
+.cf-1{top:26px; left:-26px; animation:floaty 6s ease-in-out infinite}
+.cf-2{bottom:64px; right:-22px; animation:floaty 7s ease-in-out 1s infinite}
+.cf-3{bottom:-22px; left:36px; animation:floaty 8s ease-in-out .5s infinite}
+@keyframes floaty{0%,100%{transform:translateY(0)} 50%{transform:translateY(-13px)}}
+.ico-v{background:rgba(139,92,246,.2); color:#c4b5fd} .ico-c{background:rgba(34,211,238,.16); color:#67e8f9} .ico-p{background:rgba(244,114,182,.16); color:#f9a8d4}
+
+/* stats */
+.stats{margin-top:78px; display:grid; grid-template-columns:repeat(4,1fr); gap:18px; position:relative; z-index:1}
+.stat{padding:26px 28px; border-radius:var(--r); border:1px solid var(--line); background:var(--panel);
+  backdrop-filter:blur(12px); transition:.35s}
+.stat:hover{transform:translateY(-5px); border-color:var(--line2); background:rgba(255,255,255,.07)}
+.stat b{font-family:'Unbounded Variable'; font-size:clamp(24px,2.6vw,34px); font-weight:800; display:block}
+.stat span{color:var(--muted); font-size:13.5px}
+
+/* ---------- marquee ---------- */
+.marquee{margin-top:80px; border-block:1px solid var(--line); background:rgba(255,255,255,.02); overflow:hidden; padding:16px 0}
+.mq-track{display:flex; gap:56px; width:max-content; animation:marq 30s linear infinite}
+.marquee:hover .mq-track{animation-play-state:paused}
+.mq-track span{display:flex; align-items:center; gap:56px; font-family:'Unbounded Variable'; font-size:14px; font-weight:600;
+  color:rgba(238,241,255,.5); white-space:nowrap; letter-spacing:.06em; text-transform:uppercase}
+.mq-track i{width:7px; height:7px; border-radius:50%; background:var(--grad); font-style:normal}
+@keyframes marq{to{transform:translateX(-50%)}}
+
+/* ---------- sections base ---------- */
+section{padding:100px 0; position:relative}
+.sec-head{display:flex; align-items:flex-end; justify-content:space-between; gap:30px; margin-bottom:52px; flex-wrap:wrap}
+.sec-tag{font-size:12.5px; font-weight:800; letter-spacing:.22em; text-transform:uppercase; color:#a78bfa; margin-bottom:14px; display:block}
+.sec-head h2{font-size:clamp(26px,3.2vw,42px); font-weight:800; max-width:640px}
+.sec-head p{color:var(--muted); max-width:380px; font-size:15px}
+
+/* ---------- catalog ---------- */
+.filters{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:38px}
+.chip{padding:11px 22px; border-radius:100px; border:1px solid var(--line); color:var(--muted); font-weight:700; font-size:14px;
+  background:rgba(255,255,255,.03); transition:.3s}
+.chip:hover{color:#fff; border-color:var(--line2)}
+.chip.active{background:var(--grad); color:#fff; border-color:transparent; box-shadow:0 8px 26px -10px rgba(99,102,241,.9)}
+.courses{display:grid; grid-template-columns:repeat(3,1fr); gap:26px}
+.course{border-radius:var(--r); overflow:hidden; border:1px solid var(--line); background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.02));
+  display:flex; flex-direction:column; transition:transform .4s cubic-bezier(.2,.7,.3,1), border-color .3s, box-shadow .4s; position:relative}
+.course:hover{transform:translateY(-9px); border-color:rgba(139,92,246,.55); box-shadow:0 30px 60px -26px rgba(99,102,241,.55)}
+.course.pop{animation:pop .5s cubic-bezier(.2,.7,.3,1)}
+@keyframes pop{from{opacity:0; transform:scale(.95) translateY(14px)} to{opacity:1; transform:none}}
+.course.hide{display:none}
+.course-media{position:relative; aspect-ratio:16/10; overflow:hidden}
+.course-media img{width:100%; height:100%; object-fit:cover; transition:transform .8s cubic-bezier(.2,.7,.3,1)}
+.course:hover .course-media img{transform:scale(1.09)}
+.course-media::after{content:''; position:absolute; inset:0; background:linear-gradient(180deg,rgba(6,7,13,0) 40%,rgba(6,7,13,.72))}
+.badge{position:absolute; top:14px; left:14px; z-index:2; padding:7px 14px; border-radius:100px; font-size:11.5px; font-weight:800;
+  letter-spacing:.06em; text-transform:uppercase; backdrop-filter:blur(8px)}
+.badge.hit{background:rgba(139,92,246,.85); color:#fff}
+.badge.new{background:rgba(34,211,238,.85); color:#04252b}
+.badge.top{background:rgba(244,114,182,.85); color:#3b0721}
+.course-cat{position:absolute; bottom:14px; left:14px; z-index:2; font-size:11.5px; font-weight:800; letter-spacing:.14em;
+  text-transform:uppercase; color:#c7cdea}
+.course-body{padding:24px 24px 26px; display:flex; flex-direction:column; gap:14px; flex:1}
+.course-body h3{font-size:18.5px; font-weight:700; line-height:1.35}
+.course-body .desc{color:var(--muted); font-size:14px; flex:0}
+.meta{display:flex; gap:16px; color:var(--muted); font-size:12.5px; font-weight:600; flex-wrap:wrap}
+.meta span{display:flex; align-items:center; gap:6px}
+.meta i{font-style:normal; opacity:.9}
+.rating{display:flex; align-items:center; gap:7px; font-size:13px; font-weight:700}
+.rating .stars{color:#fbbf24; letter-spacing:2px; font-size:12px}
+.rating small{color:var(--muted); font-weight:500}
+.price-row{display:flex; align-items:center; gap:14px; margin-top:auto; padding-top:6px}
+.price-old{color:var(--muted); text-decoration:line-through; font-size:14.5px; font-weight:600}
+.price-now{font-family:'Unbounded Variable'; font-size:23px; font-weight:800; background:var(--grad);
+  -webkit-background-clip:text; background-clip:text; color:transparent}
+.price-off{margin-left:auto; font-size:12px; font-weight:800; color:#6ee7b7; background:rgba(52,211,153,.12);
+  border:1px solid rgba(52,211,153,.3); padding:5px 11px; border-radius:9px}
+.course .btn{width:100%}
+.more-courses{margin-top:44px; text-align:center; color:var(--muted); font-size:15px}
+.more-courses a{color:#a78bfa; font-weight:800; border-bottom:1px dashed rgba(167,139,250,.5); transition:.25s}
+.more-courses a:hover{color:#c4b5fd; border-color:transparent}
+
+/* ---------- features ---------- */
+.features{background:var(--bg2); border-block:1px solid var(--line)}
+.feat-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:24px}
+.feat{padding:34px 30px; border-radius:var(--r); border:1px solid var(--line); background:rgba(255,255,255,.03);
+  position:relative; overflow:hidden; transition:.4s}
+.feat::before{content:''; position:absolute; inset:0; background:var(--grad-soft); opacity:0; transition:.4s}
+.feat:hover{transform:translateY(-7px); border-color:var(--line2)}
+.feat:hover::before{opacity:1}
+.feat>*{position:relative}
+.feat .ico{width:52px; height:52px; border-radius:15px; display:grid; place-items:center; font-size:23px; margin-bottom:20px;
+  background:rgba(139,92,246,.15); border:1px solid rgba(139,92,246,.35)}
+.feat h3{font-size:17.5px; margin-bottom:10px}
+.feat p{color:var(--muted); font-size:14.5px}
+
+/* ---------- steps ---------- */
+.steps{display:grid; grid-template-columns:repeat(3,1fr); gap:26px; position:relative}
+.steps::before{content:''; position:absolute; top:44px; left:12%; right:12%; height:2px;
+  background:repeating-linear-gradient(90deg,rgba(255,255,255,.22) 0 8px,transparent 8px 16px)}
+.step{text-align:center; padding:0 12px; position:relative}
+.step-num{width:88px; height:88px; margin:0 auto 26px; border-radius:50%; display:grid; place-items:center;
+  font-family:'Unbounded Variable'; font-size:28px; font-weight:800; background:var(--bg);
+  border:2px solid transparent; background-image:linear-gradient(var(--bg),var(--bg)),var(--grad);
+  background-origin:border-box; background-clip:padding-box,border-box; position:relative; z-index:1;
+  box-shadow:0 0 0 8px rgba(6,7,13,1), 0 14px 40px -14px rgba(139,92,246,.7)}
+.step h3{font-size:18px; margin-bottom:10px}
+.step p{color:var(--muted); font-size:14.5px; max-width:300px; margin:0 auto}
+
+/* ---------- reviews ---------- */
+.reviews{background:var(--bg2); border-block:1px solid var(--line)}
+.rev-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:24px}
+.rev{padding:30px 28px; border-radius:var(--r); border:1px solid var(--line); background:rgba(255,255,255,.03); transition:.35s; display:flex; flex-direction:column; gap:16px}
+.rev:hover{transform:translateY(-6px); border-color:var(--line2); background:rgba(255,255,255,.055)}
+.rev .stars{color:#fbbf24; letter-spacing:3px; font-size:14px}
+.rev p{font-size:14.5px; color:#d5daf0}
+.rev-foot{display:flex; align-items:center; gap:13px; margin-top:auto}
+.rev-ava{width:44px; height:44px; border-radius:50%; display:grid; place-items:center; font-weight:800; font-size:15px; color:#fff; flex:none}
+.rev-foot b{font-size:14.5px; display:block}
+.rev-foot span{font-size:12.5px; color:var(--muted)}
+
+/* ---------- guarantee ---------- */
+.guarantee{border-radius:30px; padding:64px 60px; position:relative; overflow:hidden;
+  border:1px solid transparent;
+  background:linear-gradient(var(--bg2),var(--bg2)) padding-box, var(--grad) border-box;
+  display:grid; grid-template-columns:auto 1fr auto; gap:44px; align-items:center}
+.guarantee::before{content:''; position:absolute; width:340px; height:340px; border-radius:50%; filter:blur(90px);
+  background:rgba(139,92,246,.25); top:-120px; right:-80px}
+.g-shield{width:96px; height:96px; border-radius:26px; display:grid; place-items:center; font-size:44px;
+  background:var(--grad-soft); border:1px solid var(--line2); backdrop-filter:blur(8px)}
+.guarantee h2{font-size:clamp(22px,2.4vw,30px); margin-bottom:12px}
+.guarantee p{color:var(--muted); max-width:560px; font-size:15px}
+
+/* ---------- faq ---------- */
+.faq-list{max-width:820px; margin:0 auto; display:flex; flex-direction:column; gap:14px}
+.faq-item{border:1px solid var(--line); border-radius:18px; background:rgba(255,255,255,.03); overflow:hidden; transition:.3s}
+.faq-item.open{border-color:rgba(139,92,246,.5); background:rgba(139,92,246,.06)}
+.faq-q{width:100%; display:flex; justify-content:space-between; align-items:center; gap:20px; padding:22px 26px;
+  font-size:16px; font-weight:700; text-align:left}
+.faq-icon{width:30px; height:30px; border-radius:50%; border:1px solid var(--line2); display:grid; place-items:center; flex:none; transition:.35s; font-size:16px; font-weight:400}
+.faq-item.open .faq-icon{transform:rotate(45deg); background:var(--grad); border-color:transparent; color:#fff}
+.faq-a{max-height:0; overflow:hidden; transition:max-height .45s cubic-bezier(.2,.7,.3,1)}
+.faq-a p{padding:0 26px 24px; color:var(--muted); font-size:14.5px}
+
+/* ---------- final cta ---------- */
+.final{padding:40px 0 120px}
+.final-card{border-radius:34px; padding:80px 40px; text-align:center; position:relative; overflow:hidden;
+  border:1px solid var(--line2); background:radial-gradient(120% 140% at 50% -20%,rgba(139,92,246,.32),rgba(10,13,24,.9) 60%)}
+.final-card::before,.final-card::after{content:''; position:absolute; border-radius:50%; filter:blur(80px)}
+.final-card::before{width:300px; height:300px; background:rgba(34,211,238,.25); bottom:-140px; left:-60px}
+.final-card::after{width:260px; height:260px; background:rgba(244,114,182,.2); top:-100px; right:-40px}
+.final-card>*{position:relative; z-index:1}
+.final-card h2{font-size:clamp(26px,3.6vw,46px); margin-bottom:16px; font-weight:800}
+.final-card p{color:var(--muted); max-width:520px; margin:0 auto 36px; font-size:16px}
+.final-card .btn{padding:18px 40px; font-size:17px; border-radius:16px}
+.tg-handle{display:block; margin-top:18px; color:#a78bfa; font-weight:800; font-size:15px; letter-spacing:.04em}
+.final-mini{margin-top:26px; display:flex; justify-content:center; gap:28px; flex-wrap:wrap; color:var(--muted); font-size:13px; font-weight:600}
+.final-mini span{display:flex; align-items:center; gap:8px}
+.final-mini i{font-style:normal; color:#34d399}
+
+/* ---------- footer ---------- */
+footer{border-top:1px solid var(--line); padding:54px 0 120px; background:var(--bg2)}
+.foot{display:flex; justify-content:space-between; gap:36px; flex-wrap:wrap; align-items:flex-start}
+.foot-links{display:flex; gap:44px; flex-wrap:wrap}
+.foot-col b{display:block; font-size:13px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin-bottom:16px}
+.foot-col a{display:block; font-size:14.5px; color:#cdd4f2; margin-bottom:10px; transition:.25s}
+.foot-col a:hover{color:#fff; transform:translateX(4px)}
+.copy{margin-top:44px; padding-top:26px; border-top:1px solid var(--line); display:flex; justify-content:space-between; gap:20px; flex-wrap:wrap; color:var(--muted); font-size:13px}
+
+/* ---------- sticky mobile cta ---------- */
+.sticky-cta{position:fixed; left:0; right:0; bottom:0; z-index:55; padding:12px 14px calc(12px + env(safe-area-inset-bottom));
+  background:rgba(8,10,18,.85); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border-top:1px solid var(--line);
+  display:none; align-items:center; gap:14px; transform:translateY(105%); transition:transform .45s cubic-bezier(.2,.7,.3,1)}
+.sticky-cta.show{transform:translateY(0)}
+.sticky-cta .info{flex:1; font-size:12.5px; color:var(--muted); line-height:1.35}
+.sticky-cta .info b{display:block; color:#fff; font-size:14.5px}
+.sticky-cta .btn{padding:13px 22px; font-size:14.5px}
+
+/* ---------- tg help modal ---------- */
+.tg-modal{position:fixed; inset:0; z-index:80; display:flex; align-items:center; justify-content:center; padding:20px;
+  background:rgba(4,5,10,.7); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+  opacity:0; pointer-events:none; transition:opacity .35s}
+.tg-modal.open{opacity:1; pointer-events:auto}
+.tg-box{width:min(440px,100%); border-radius:26px; padding:36px 30px; text-align:center; position:relative;
+  border:1px solid var(--line2); background:linear-gradient(180deg,#12152a,#0a0d18);
+  box-shadow:0 40px 90px -30px rgba(0,0,0,.9); transform:translateY(24px) scale(.96); transition:transform .4s cubic-bezier(.2,.7,.3,1)}
+.tg-modal.open .tg-box{transform:none}
+.tg-box h3{font-size:21px; margin:14px 0 8px}
+.tg-box p{color:var(--muted); font-size:14px; margin-bottom:22px}
+.tg-box .big-ico{width:64px; height:64px; margin:0 auto; border-radius:20px; display:grid; place-items:center; background:var(--grad);
+  box-shadow:0 12px 34px -10px rgba(99,102,241,.9)}
+.tg-box .big-ico svg{width:30px; height:30px; fill:#fff}
+.tg-options{display:flex; flex-direction:column; gap:12px}
+.tg-options .btn{width:100%}
+.btn-copy{border:1px solid var(--line2); background:rgba(255,255,255,.05); color:var(--txt)}
+.btn-copy:hover{background:rgba(255,255,255,.1)}
+.tg-close{position:absolute; top:14px; right:14px; width:36px; height:36px; border-radius:50%; display:grid; place-items:center;
+  color:var(--muted); font-size:20px; border:1px solid var(--line); transition:.25s}
+.tg-close:hover{color:#fff; border-color:var(--line2); transform:rotate(90deg)}
+.tg-hint{margin-top:16px; font-size:12px; color:var(--muted)}
+
+/* ---------- toast ---------- */
+.toast{position:fixed; left:50%; bottom:96px; transform:translate(-50%,20px); z-index:90; padding:13px 24px; border-radius:14px;
+  background:rgba(16,20,38,.92); border:1px solid var(--line2); backdrop-filter:blur(12px);
+  font-size:14px; font-weight:700; opacity:0; pointer-events:none; transition:.4s cubic-bezier(.2,.7,.3,1); box-shadow:var(--shadow)}
+.toast.show{opacity:1; transform:translate(-50%,0)}
+
+/* ---------- reveal ---------- */
+.reveal{opacity:0; transform:translateY(30px); transition:opacity .8s cubic-bezier(.2,.7,.3,1), transform .8s cubic-bezier(.2,.7,.3,1)}
+.reveal.visible{opacity:1; transform:none}
+
+/* ---------- responsive ---------- */
+@media(max-width:1024px){
+  .hero-grid{grid-template-columns:1fr; gap:52px}
+  .hero-visual{max-width:560px; margin:0 auto}
+  .courses{grid-template-columns:repeat(2,1fr)}
+  .feat-grid,.rev-grid{grid-template-columns:repeat(2,1fr)}
+  .steps{grid-template-columns:1fr; gap:44px}
+  .steps::before{display:none}
+  .guarantee{grid-template-columns:1fr; text-align:center; padding:52px 32px; gap:26px}
+  .guarantee .g-shield{margin:0 auto}
+  .guarantee p{margin:0 auto}
+  .guarantee .btn{justify-self:center}
+}
+@media(max-width:760px){
+  .nav-links{display:none}
+  .hero{padding-top:130px}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .courses{grid-template-columns:1fr}
+  .feat-grid,.rev-grid{grid-template-columns:1fr}
+  section{padding:72px 0}
+  .cf-1{left:-6px} .cf-2{right:-6px}
+  .sticky-cta{display:flex}
+  footer{padding-bottom:110px}
+  .hero-cta .btn{width:100%}
+  .guarantee{padding:44px 24px}
+  .toast{bottom:120px}
+}
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important; transition:none!important}
+  .reveal{opacity:1; transform:none}
+}
+</style>
+</head>
+<body>
+
+<div class="noise"></div>
+<div id="progress"></div>
+
+<header id="header">
+  <div class="wrap nav">
+    <a href="#top" class="logo js-anchor" aria-label="SKILLFLOW">
+      <span class="logo-mark"><svg viewBox="0 0 24 24"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg></span>
+      SKILL<em>FLOW</em>
+    </a>
+    <nav class="nav-links">
+      <a href="#catalog" class="js-anchor">Курсы</a>
+      <a href="#features" class="js-anchor">Преимущества</a>
+      <a href="#steps" class="js-anchor">Как купить</a>
+      <a href="#reviews" class="js-anchor">Отзывы</a>
+      <a href="#faq" class="js-anchor">Вопросы</a>
+    </nav>
+    <a class="btn btn-tg btn-sm js-tg" href="https://telegram.me/samik_dsd" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24"><path d="M21.9 4.4 18.9 19c-.2 1-.8 1.2-1.6.8l-4.6-3.4-2.2 2.1c-.2.2-.4.4-.9.4l.3-4.7L18.4 6c.4-.3-.1-.5-.6-.2L7.3 12.4l-4.5-1.4c-1-.3-1-1 .2-1.4L20.6 3c.8-.3 1.5.2 1.3 1.4Z"/></svg>
+      Написать в Telegram
+    </a>
+  </div>
+</header>
+
+<span id="top"></span>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div>
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <span class="pill reveal"><span class="dot"></span> Более 12 000 студентов уже с нами</span>
+        <h1 class="reveal">Профессии будущего — <span class="grad-text">без переплат</span> и воды</h1>
+        <p class="lead reveal">Практические онлайн-курсы по программированию, дизайну, маркетингу и нейросетям. Пожизненный доступ, обновления и поддержка — сразу после оплаты.</p>
+        <div class="hero-cta reveal">
+          <a class="btn btn-tg js-tg" href="https://telegram.me/samik_dsd" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24"><path d="M21.9 4.4 18.9 19c-.2 1-.8 1.2-1.6.8l-4.6-3.4-2.2 2.1c-.2.2-.4.4-.9.4l.3-4.7L18.4 6c.4-.3-.1-.5-.6-.2L7.3 12.4l-4.5-1.4c-1-.3-1-1 .2-1.4L20.6 3c.8-.3 1.5.2 1.3 1.4Z"/></svg>
+            Выбрать курс в Telegram
+          </a>
+          <a class="btn btn-ghost js-anchor" href="#catalog">Смотреть каталог</a>
+        </div>
+        <div class="hero-note reveal">
+          <div class="avatars"><span class="av1">АК</span><span class="av2">МС</span><span class="av3">ДВ</span><span class="av4">ЕП</span></div>
+          <span>Средняя оценка курсов <b style="color:#fff">4.9 / 5</b> — по 3 800+ отзывам студентов</span>
+        </div>
+      </div>
+      <div class="hero-visual reveal">
+        <div class="hero-frame">
+          <img src="https://image.qwenlm.ai/public_source/9e09041d-a27a-424a-8a07-d2b43271daaf/13a5424b5-1e03-4322-a7d7-5331420366a8.png" alt="Абстрактная визуализация потока знаний">
+        </div>
+        <div class="chip-float cf-1"><span class="ico ico-v">⚡</span><span>Доступ за 15 минут<small>сразу после оплаты</small></span></div>
+        <div class="chip-float cf-2"><span class="ico ico-c">∞</span><span>Пожизненный доступ<small>и все обновления бесплатно</small></span></div>
+        <div class="chip-float cf-3"><span class="ico ico-p">−50%</span><span>Скидки недели<small>успей забрать свой курс</small></span></div>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat reveal"><b class="grad-text" data-count="12400" data-suffix="+">0</b><span>студентов прошли обучение</span></div>
+      <div class="stat reveal"><b class="grad-text" data-count="48">0</b><span>курсов и бандлов в каталоге</span></div>
+      <div class="stat reveal"><b class="grad-text" data-count="4.9" data-decimals="1">0</b><span>средняя оценка качества</span></div>
+      <div class="stat reveal"><b class="grad-text" data-count="15" data-suffix=" мин">0</b><span>среднее время выдачи доступа</span></div>
+    </div>
+  </div>
+
+  <div class="marquee" aria-hidden="true">
+    <div class="mq-track">
+      <span>Frontend <i></i> Python <i></i> Нейросети <i></i> Дизайн <i></i> Таргет <i></i> Монтаж <i></i> Blender <i></i> Маркетплейсы <i></i> ChatGPT <i></i> SMM <i></i></span>
+      <span>Frontend <i></i> Python <i></i> Нейросети <i></i> Дизайн <i></i> Таргет <i></i> Монтаж <i></i> Blender <i></i> Маркетплейсы <i></i> ChatGPT <i></i> SMM <i></i></span>
+    </div>
+  </div>
+</div>
+
+<!-- CATALOG -->
+<section id="catalog">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div>
+        <span class="sec-tag">Каталог</span>
+        <h2>Курсы, которые <span class="grad-text">окупаются</span> с первого заказа</h2>
+      </div>
+      <p>Только практика: реальные проекты, портфолио и навыки, за которые платят работодатели и клиенты.</p>
+    </div>
+
+    <div class="filters reveal">
+      <button class="chip active" data-filter="all">Все направления</button>
+      <button class="chip" data-filter="code">Программирование</button>
+      <button class="chip" data-filter="ai">Нейросети</button>
+      <button class="chip" data-filter="design">Дизайн</button>
+      <button class="chip" data-filter="marketing">Маркетинг</button>
+      <button class="chip" data-filter="video">Видео</button>
+    </div>
+
+    <div class="courses" id="courseGrid">
+
+      <article class="course reveal" data-cat="code">
+        <div class="course-media">
+          <span class="badge hit">Хит</span>
+          <img loading="lazy" src="https://image.qwenlm.ai/public_source/9e09041d-a27a-424a-8a07-d2b43271daaf/143ce4dd8-82c2-4ca9-8676-6573b6b19b3f.png" alt="Frontend-разработка">
+          <span class="course-cat">Программирование</span>
+        </div>
+        <div class="course-body">
+          <h3>Frontend-разработчик PRO</h3>
+          <p class="desc">HTML, CSS, JavaScript и React: 12 живых проектов в портфолио и выход на первые заказы.</p>
+          <div class="meta"><span><i>🎬</i> 84 урока</span><span><i>⏱</i> 42 часа</span><span><i>📈</i> с нуля до Middle</span></div>
+          <div class="rating"><span class="stars">★★★★★</span> 4.9 <small>(1 240 отзывов)</small></div>
+          <div class="price-row">
+            <span class="price-old">9 990 ₽</span>
+            <span class="price-now">4 990 ₽</span>
+            <span class="price-off">−50%</span>
+          </div>
+          <a class="btn btn-tg js-tg" href="https://telegram.me/samik_dsd" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24"><path d="M21.9 4.4 18.9 19c-.2 1-.8 1.2-1.6.8l-4.6-3.4-2.2 2.1c-.2.2-.4.4-.9.4l.3-4.7L18.4 6c.4-.3-.1-.5-.6-.2L7.3 12.4l-4.5-1.4c-1-.3-1-1 .2-1.4L20.6 3c.8-.3 1.5.2 1.3 1.4Z"/></svg>
+            Забрать курс
+          </a>
+        </div>
+      </article>
+
+      <article class="course reveal" data-cat="ai">
+        <div class="course-media">
+          <span class="badge new">Новинка</span>
+          <img loading="lazy" src="https://image.qwenlm.ai/public_source/9e09041d-a27a-424a-8a07-d2b43271daaf/194e08c9c-8db1-48a8-9d49-aaf3e588ea8f.png" alt="Python и нейросети">
+          <span class="course-cat">Нейросети</span>
+        </div>
+        <div class="course-body">
+          <h3>Python + нейросети: AI-инженер</h3>
+          <p class="desc">От первых строк кода до собственных моделей и Telegram-ботов с ИИ. Самая денежная связка 2026 года.</p>
+          <div class="meta"><span><i>🎬</i> 96 уроков</span><span><i>⏱</i> 56 часов</span><span><i>📈</i> профессия</span></div>
+          <div class="rating"><span class="stars">★★★★★</span> 5.0 <small>(860 отзывов)</small></div>
+          <div class="price-row">
+            <span class="price-old">10 990 ₽</span>
+            <span class="price-now">5 490 ₽</span>
+            <span class="price-off">−50%</span>
+          </div>
+          <a class="btn btn-tg js-tg" href="https://telegram.me/samik_dsd" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24"><path d="M21.9 4.4 18.9 19c-.2 1-.8 1.2-1.6.8l-4.6-3.4-2.2 2.1c-.2.2-.4.4-.9.4l.3-4.7L18.4 6c.4-.3-.1-.5-.6-.2L7.3 12.4l-4.5-1.4c-1-.3-1-1 .2-1.4L20.6 3c.8-.3 1.5.2 1.3 1.4Z"/></svg>
+            Забрать курс
+          </a>
+        </div>
+      </article>
+
+      <article class="course reveal" data-cat="design">
+        <div class="course-media">
+          <span class="badge top">Топ</span>
+          <img loading="lazy" src="https://image.qwenlm.ai/public_source/9e09041d-a27a-424a-8a07-d2b43271daaf/1653b5492-0bbf-43df-8bab-7262039344c8.png" alt="Графический дизайн">
+          <span class="course-cat">Дизайн</span>
+        </div>
+        <div class="course-body">
+          <h3>Графический дизайнер: с нуля до заказов</h3>
+          <p class="desc">Figma, Photoshop, айдентика и брендинг. Собираешь портфолио из 8 работ прямо во время обучения.</p>
+          <div class="meta"><span><i>🎬</i> 68 уроков</span><span><i>⏱</i> 38 часов</span><span><i>📈</i> с нуля</span></div>
+          <div class="rating"><span class="stars">★★★★★</span> 4.9 <small>(940 отзывов)</small></div>
+          <div class="price-row">
+            <span class="price-old">8 990 ₽</span>
+            <span class="price-now">4 490 ₽</span>
+            <span class="price-off">−50%</span>
+          </div>
+          <a class="btn btn-tg js-tg" href="https://telegram.me/samik_dsd" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24"><path d="M21.9 4.4 18.9 19c-.2 1-.8 1.2-1.6.8l-4.6-3.4-2.2 2.1c-.2.2-.4.4-.9.4l.3-4.7L18.4 6c.4-.3-.1-.5-.6-.2L7.3 12.4l-4.5-1.4c-1-.3-1-1 .2-1.4L20.6 3c.8-.3 1.5.2 1.3 1.4Z"/></svg>
+            Забрать курс
+          </a>
+        </div>
+      </article>
+
+      <article class="course reveal" data-cat="marketing">
+        <div class="course-media">
+          <span class="badge hit">Хит</span>
+          <img loading="lazy" src="https://image.qwenlm.ai/public_source/9e09041d-a27a-424a-8a07-d2b43271daaf/1cc0e097b-12a9-408f-b3e7-8a6b0cea83cc.png" alt="Таргет и SMM">
+          <span class="course-cat">Маркетинг</span>
+        </div>
+        <div class="course-body">
+          <h3>Таргетолог и SMM-стратег 2026</h3>
+          <p class="desc">Трафик, воронки, аналитика и контент-стратегии. Учишься приводить клиентов и брать проекты на сопровождение.</p>
+          <div class="meta"><span><i>🎬</i> 54 урока</span><span><i>⏱</i> 30 часов</span><span><i>📈</i> с нуля</span></div>
+          <div class="rating"><span class="stars">★★★★★</span> 4.8 <small>(720 отзывов)</small></div>
+          <div class="price-row">
+            <span class="price-old">7 990 ₽</span>
+            <span class="price-now">3 990 ₽</span>
+            <span class="price-off">−50%</span>
+          </div>
+          <a class="btn btn-tg js-tg" href="https://telegram.me/samik_dsd" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24"><path d="M21.9 4.4 18.9 19c-.2 1-.8 1.2-1.6.8l-4.6-3.4-2.2 2.1c-.2.2-.4.4-.9.4l.3-4.7L18.4 6c.4-.3-.1-.5-.6-.2L7.3 12.4l-4.5-1.4c-1-.3-1-1 .2-1.4L20.6 3c.8-.3 1.5.2 1.3 1.4Z"/></svg>
+            Забрать курс
+          </a>
+        </div>
+      </article>
+
+      <article class="course reveal" data-cat="video">
+        <div class="course-media">
+          <span class="badge new">Новинка</span>
+          <img loading="lazy" src="https://image.qwenlm.ai/public_source/9e09041d-a27a-424a-8a07-d2b43271daaf/192129a0a-1641-444c-80f8-aec0a4f336d9.png" alt="Видеомонтаж и моушн">
+          <span class="course-cat">Видео</span>
+        </div>
+        <div class="course-body">
+          <h3>Монтаж и моушн: Reels, YouTube, реклама</h3>
+          <p class="desc">Premiere Pro, After Effects и DaVinci: динамичный монтаж, титры, звук и клипы, которые залетают.</p>
+          <div class="meta"><span><i>🎬</i> 61 урок</span><span><i>⏱</i> 34 часа</span><span><i>📈</i> с нуля</span></div>
+          <div class="rating"><span class="stars">★★★★★</span> 4.9 <small>(510 отзывов)</small></div>
+          <div class="price-row">
+            <span class="price-old">6 990 ₽</span>
+            <span class="price-now">3 490 ₽</span>
+            <span class="price-off">−50%</span>
+          </div>
+          <a class="btn btn-tg js-tg" href="https://telegram.me/samik_dsd" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24"><path d="M21.9 4.4 18.9 19c-.2 1-.8 1.2-1.6.8l-4.6-3.4-2.2 2.1c-.2.2-.4.4-.9.4l.3-4.7L18.4 6c.4-.3-.1-.5-.6-.2L7.3 12.4l-4.5-1.4c-1-.3-1-1 .2-1.4L20.6 3c.8-.3 1.5.2 1.3 1.4Z"/></svg>
+            Забрать курс
+          </a>
+        </div>
+      </article>
+
+      <article class="course reveal" data-cat="ai">
+        <div class="course-media">
+          <span class="badge top">Топ</span>
+          <img loading="lazy" src="https://image.qwenlm.ai/public_source/9e09041d-a27a-424a-8a07-d2b43271daaf/1053f9e61-91d0-43d2-a7bb-3d79eac47886.png" alt="Нейросети для бизнеса">
+          <span class="course-cat">Нейросети</span>
+        </div>
+        <div class="course-body">
+          <h3>Нейросети для бизнеса и контента</h3>
+          <p class="desc">ChatGPT, Midjourney и автоматизации: контент-план на месяц за вечер и рост продаж без найма команды.</p>
+          <div class="meta"><span><i>🎬</i> 42 урока</span><span><i>⏱</i> 21 час</span><span><i>📈</i> любой уровень</span></div>
+          <div class="rating"><span class="stars">★★★★★</span> 4.9 <small>(680 отзывов)</small></div>
+          <div class="price-row">
+            <span class="price-old">8 590 ₽</span>
+            <span class="price-now">4 290 ₽</span>
+            <span class="price-off">−50%</span>
+          </div>
+          <a class="btn btn-tg js-tg" href="https://telegram.me/samik_dsd" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24"><path d="M21.9 4.4 18.9 19c-.2 1-.8 1.2-1.6.8l-4.6-3.4-2.2 2.1c-.2.2-.4.4-.9.4l.3-4.7L18.4 6c.4-.3-.1-.5-.6-.2L7.3 12.4l-4.5-1.4c-1-.3-1-1 .2-1.4L20.6 3c.8-.3 1.5.2 1.3 1.4Z"/></svg>
+            Забрать курс
+          </a>
+        </div>
+      </article>
+
+    </div>
+    <p class="more-courses reveal">Это не всё: в закрытой базе ещё <b style="color:#fff">40+ курсов</b> по любым направлениям. <a href="https://telegram.me/samik_dsd" target="_blank" rel="noopener" class="js-tg">Спроси нужный курс в Telegram</a> — пришлём программу и цену за 5 минут.</p>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features" class="features">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div>
+        <span class="sec-tag">Почему мы</span>
+        <h2>Покупка занимает <span class="grad-text">2 минуты</span>, пользуешься годами</h2>
+      </div>
+      <p>Мы убрали всё лишнее: сложные сайты, менеджеров и очереди. Остался только результат.</p>
+    </div>
+    <div class="feat-grid">
+      <div class="feat reveal"><div class="ico">⚡</div><h3>Мгновенная выдача</h3><p>Доступ к курсу приходит в Telegram в среднем за 15 минут после оплаты — без ожиданий и «рабочих дней».</p></div>
+      <div class="feat reveal"><div class="ico">∞</div><h3>Пожизненный доступ</h3><p>Курс остаётся у тебя навсегда: пересматривай уроки когда угодно, все будущие обновления — бесплатно.</p></div>
+      <div class="feat reveal"><div class="ico">💬</div><h3>Поддержка на связи</h3><p>Вопрос по уроку или домашке? Отвечаем в Telegram ежедневно, среднее время ответа — несколько минут.</p></div>
+      <div class="feat reveal"><div class="ico">🏷️</div><h3>Цены без накруток</h3><p>Не тратимся на рекламу и офисы, поэтому держим цены в разы ниже рыночных при том же содержании.</p></div>
+      <div class="feat reveal"><div class="ico">🧩</div><h3>Бандлы и подборки</h3><p>Соберём персональный набор курсов под твою цель: профессия, фриланс или рост дохода в найме.</p></div>
+      <div class="feat reveal"><div class="ico">🛡️</div><h3>Безопасная оплата</h3><p>Любой удобный способ: карта, СБП, криптовалюта. Чек и подтверждение приходят сразу после платежа.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- STEPS -->
+<section id="steps">
+  <div class="orb orb-2" style="top:auto; bottom:-100px; right:-120px"></div>
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div>
+        <span class="sec-tag">Как купить</span>
+        <h2>Три шага до <span class="grad-text">нового навыка</span></h2>
+      </div>
+      <p>Никаких корзин и регистраций: всё общение и оплата — в одном диалоге в Telegram.</p>
+    </div>
+    <div class="steps">
+      <div class="step reveal"><div class="step-num">1</div><h3>Выбираешь курс</h3><p>Смотришь каталог выше или пишешь свою цель — подскажем, с чего начать и что окупится быстрее.</p></div>
+      <div class="step reveal"><div class="step-num">2</div><h3>Пишешь в Telegram</h3><p>Жмёшь кнопку и пишешь нам в Telegram <b style="color:#a78bfa">@samik_dsd</b> — фиксируем цену со скидкой и присылаем оплату.</p></div>
+      <div class="step reveal"><div class="step-num">3</div><h3>Получаешь доступ</h3><p>В течение 15 минут приходит полный доступ к курсу, бонусам и чату поддержки. Можно начинать.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- REVIEWS -->
+<section id="reviews" class="reviews">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div>
+        <span class="sec-tag">Отзывы</span>
+        <h2>Студенты уже <span class="grad-text">зарабатывают</span></h2>
+      </div>
+      <p>Реальные истории тех, кто купил курс в Telegram и дошёл до результата.</p>
+    </div>
+    <div class="rev-grid">
+      <div class="rev reveal"><span class="stars">★★★★★</span><p>«Взяла курс по дизайну в воскресенье вечером, через 10 минут уже смотрела первый урок. Через два месяца собрала портфолио и взяла первого клиента на логотип за 15 000 ₽».</p><div class="rev-foot"><span class="rev-ava av3">АК</span><span><b>Алина К.</b><span>Графический дизайнер</span></span></div></div>
+      <div class="rev reveal"><span class="stars">★★★★★</span><p>«Сравнивал цены везде — здесь вышло почти вдвое дешевле за тот же материал. Доступ пришёл мгновенно, все обновления действительно приходят бесплатно».</p><div class="rev-foot"><span class="rev-ava av1">МС</span><span><b>Максим С.</b><span>Frontend-разработчик</span></span></div></div>
+      <div class="rev reveal"><span class="stars">★★★★★</span><p>«Курс по нейросетям окупился за первую же неделю: настроил контент для своего магазина через ChatGPT, продажи выросли на 38%. Поддержка отвечает моментально».</p><div class="rev-foot"><span class="rev-ava av2">ДВ</span><span><b>Дмитрий В.</b><span>Владелец магазина</span></span></div></div>
+      <div class="rev reveal"><span class="stars">★★★★★</span><p>«Боялась, что будет сложно с нуля. Но уроки короткие и по делу, монтирую Reels на заказ уже во время обучения. Первый чек — 8 000 ₽ за 4 ролика».</p><div class="rev-foot"><span class="rev-ava av4">ЕП</span><span><b>Екатерина П.</b><span>Видеомонтажёр</span></span></div></div>
+      <div class="rev reveal"><span class="stars">★★★★★</span><p>«Написал в Telegram в 2 часа ночи, ответил живой человек за пару минут. Подобрали бандл под мою цель без навязывания лишнего. Респект за сервис».</p><div class="rev-foot"><span class="rev-ava av1">ИТ</span><span><b>Илья Т.</b><span>Студент, фриланс</span></span></div></div>
+      <div class="rev reveal"><span class="stars">★★★★★</span><p>«После курса по таргету вышла на удалёнку с зп x2 к офисной. Материалы структурированы лучше, чем на курсах за сотни тысяч».</p><div class="rev-foot"><span class="rev-ava av3">ОЛ</span><span><b>Ольга Л.</b><span>Таргетолог</span></span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- GUARANTEE -->
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="guarantee reveal">
+      <div class="g-shield">🛡️</div>
+      <div>
+        <h2>Гарантия честной сделки</h2>
+        <p>Если в течение 14 дней поймёшь, что курс тебе не подходит, — вернём деньги без допросов и удержаний. Нам важнее 12 000 довольных студентов и их рекомендации, чем разовая продажа.</p>
+      </div>
+      <a class="btn btn-tg js-tg" href="https://telegram.me/samik_dsd" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24"><path d="M21.9 4.4 18.9 19c-.2 1-.8 1.2-1.6.8l-4.6-3.4-2.2 2.1c-.2.2-.4.4-.9.4l.3-4.7L18.4 6c.4-.3-.1-.5-.6-.2L7.3 12.4l-4.5-1.4c-1-.3-1-1 .2-1.4L20.6 3c.8-.3 1.5.2 1.3 1.4Z"/></svg>
+        Задать вопрос
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head reveal" style="justify-content:center; text-align:center">
+      <div style="margin:0 auto">
+        <span class="sec-tag">FAQ</span>
+        <h2>Частые вопросы</h2>
+      </div>
+    </div>
+    <div class="faq-list reveal">
+      <div class="faq-item"><button class="faq-q">Как купить курс? <span class="faq-icon">+</span></button><div class="faq-a"><p>Нажми любую кнопку «Забрать курс» — сайт сам откроет Telegram: приложение на телефоне или диалог в браузере на компьютере. Напиши название курса, получишь ссылку на оплату, а после платежа — полный доступ.</p></div></div>
+      <div class="faq-item"><button class="faq-q">Не открывается ссылка на Telegram — что делать? <span class="faq-icon">+</span></button><div class="faq-a"><p>Короткий домен t.me отключён во всём мире с июля 2026 года, поэтому мы используем рабочий telegram.me и прямое открытие приложения. Если ссылка всё же не открылась — нажми любую кнопку ещё раз: появится окно с альтернативными способами (приложение, Telegram Web, копирование ника @samik_dsd).</p></div></div>
+      <div class="faq-item"><button class="faq-q">Как быстро придёт доступ? <span class="faq-icon">+</span></button><div class="faq-a"><p>В среднем за 15 минут. В редких случаях (ночь по МСК или техническая проверка оплаты) — до пары часов, но ты всегда видишь статус заказа в диалоге.</p></div></div>
+      <div class="faq-item"><button class="faq-q">Почему цены ниже, чем везде? <span class="faq-icon">+</span></button><div class="faq-a"><p>Мы не содержим офисы, отделы продаж и не сжигаем бюджеты в рекламе. Экономия полностью уходит в скидку для студента, а содержание курсов остаётся полным.</p></div></div>
+      <div class="faq-item"><button class="faq-q">Доступ действительно навсегда? <span class="faq-icon">+</span></button><div class="faq-a"><p>Да. Курс закрепляется за тобой пожизненно, включая все будущие обновления и добавленные уроки. Доплачивать за «продление» не нужно.</p></div></div>
+      <div class="faq-item"><button class="faq-q">Можно ли подобрать курс под мою цель? <span class="faq-icon">+</span></button><div class="faq-a"><p>Конечно. Напиши в Telegram, кем хочешь стать или сколько хочешь зарабатывать — соберём персональную траекторию и бандл со скидкой вместо лишних курсов.</p></div></div>
+      <div class="faq-item"><button class="faq-q">Какие способы оплаты доступны? <span class="faq-icon">+</span></button><div class="faq-a"><p>Карта любого банка, СБП, а также криптовалюта. После оплаты приходит подтверждение и чек, а следом — доступ к курсу.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<div class="final">
+  <div class="wrap">
+    <div class="final-card reveal">
+      <h2>Твой курс уже ждёт.<br><span class="grad-text">Скидка сгорит через 24 часа</span></h2>
+      <p>Напиши одно сообщение в Telegram — и через 15 минут начнёшь учиться профессии, которая кормит годами.</p>
+      <a class="btn btn-tg js-tg" href="https://telegram.me/samik_dsd" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24"><path d="M21.9 4.4 18.9 19c-.2 1-.8 1.2-1.6.8l-4.6-3.4-2.2 2.1c-.2.2-.4.4-.9.4l.3-4.7L18.4 6c.4-.3-.1-.5-.6-.2L7.3 12.4l-4.5-1.4c-1-.3-1-1 .2-1.4L20.6 3c.8-.3 1.5.2 1.3 1.4Z"/></svg>
+        Написать @samik_dsd
+      </a>
+      <span class="tg-handle">telegram.me/samik_dsd</span>
+      <div class="final-mini">
+        <span><i>✓</i> Ответ за ~5 минут</span>
+        <span><i>✓</i> Доступ за 15 минут</span>
+        <span><i>✓</i> Возврат 14 дней</span>
+        <span><i>✓</i> Оплата любым способом</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div style="max-width:300px">
+        <a href="#top" class="logo js-anchor" style="margin-bottom:16px">
+          <span class="logo-mark"><svg viewBox="0 0 24 24"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg></span>
+          SKILL<em>FLOW</em>
+        </a>
+        <p style="color:var(--muted); font-size:14px; margin-top:14px">Онлайн-курсы с пожизненным доступом и человеческой поддержкой. Учись тому, что приносит деньги.</p>
+      </div>
+      <div class="foot-links">
+        <div class="foot-col"><b>Навигация</b><a href="#catalog" class="js-anchor">Каталог</a><a href="#features" class="js-anchor">Преимущества</a><a href="#reviews" class="js-anchor">Отзывы</a><a href="#faq" class="js-anchor">Вопросы</a></div>
+        <div class="foot-col"><b>Направления</b><a href="#catalog" class="js-anchor">Программирование</a><a href="#catalog" class="js-anchor">Нейросети</a><a href="#catalog" class="js-anchor">Дизайн</a><a href="#catalog" class="js-anchor">Маркетинг</a></div>
+        <div class="foot-col"><b>Связь</b><a href="https://telegram.me/samik_dsd" target="_blank" rel="noopener" class="js-tg">Telegram: @samik_dsd</a><a href="https://telegram.me/samik_dsd" target="_blank" rel="noopener" class="js-tg">Купить курс</a><a href="https://telegram.me/samik_dsd" target="_blank" rel="noopener" class="js-tg">Поддержка</a></div>
+      </div>
+    </div>
+    <div class="copy">
+      <span>© 2026 SKILLFLOW. Все права защищены.</span>
+      <span>Политика конфиденциальности · Оферта</span>
+    </div>
+  </div>
+</footer>
+
+<!-- sticky mobile cta -->
+<div class="sticky-cta" id="stickyCta">
+  <div class="info"><b>Курсы от 3 490 ₽</b>Скидка −50% до конца дня</div>
+  <a class="btn btn-tg js-tg" href="https://telegram.me/samik_dsd" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24"><path d="M21.9 4.4 18.9 19c-.2 1-.8 1.2-1.6.8l-4.6-3.4-2.2 2.1c-.2.2-.4.4-.9.4l.3-4.7L18.4 6c.4-.3-.1-.5-.6-.2L7.3 12.4l-4.5-1.4c-1-.3-1-1 .2-1.4L20.6 3c.8-.3 1.5.2 1.3 1.4Z"/></svg>
+    В Telegram
+  </a>
+</div>
+
+<!-- tg fallback modal -->
+<div class="tg-modal" id="tgModal" role="dialog" aria-modal="true" aria-label="Способы связи в Telegram">
+  <div class="tg-box">
+    <button class="tg-close" id="tgClose" aria-label="Закрыть">×</button>
+    <div class="big-ico"><svg viewBox="0 0 24 24"><path d="M21.9 4.4 18.9 19c-.2 1-.8 1.2-1.6.8l-4.6-3.4-2.2 2.1c-.2.2-.4.4-.9.4l.3-4.7L18.4 6c.4-.3-.1-.5-.6-.2L7.3 12.4l-4.5-1.4c-1-.3-1-1 .2-1.4L20.6 3c.8-.3 1.5.2 1.3 1.4Z"/></svg></div>
+    <h3>Выбери удобный способ</h3>
+    <p>Ссылка не открылась автоматически? Нет проблем — вот запасные пути к нам в Telegram.</p>
+    <div class="tg-options">
+      <a class="btn btn-tg" id="tgApp" href="tg://resolve?domain=samik_dsd">
+        <svg viewBox="0 0 24 24"><path d="M21.9 4.4 18.9 19c-.2 1-.8 1.2-1.6.8l-4.6-3.4-2.2 2.1c-.2.2-.4.4-.9.4l.3-4.7L18.4 6c.4-.3-.1-.5-.6-.2L7.3 12.4l-4.5-1.4c-1-.3-1-1 .2-1.4L20.6 3c.8-.3 1.5.2 1.3 1.4Z"/></svg>
+        Открыть приложение Telegram
+      </a>
+      <a class="btn btn-ghost" id="tgWeb" href="https://telegram.me/samik_dsd" target="_blank" rel="noopener">Открыть в браузере (telegram.me)</a>
+      <button class="btn btn-copy" id="tgCopy">Скопировать ник @samik_dsd</button>
+    </div>
+    <p class="tg-hint">Ник: <b style="color:#a78bfa">@samik_dsd</b> — можно просто вставить его в поиск внутри приложения Telegram.</p>
+  </div>
+</div>
+
+<div class="toast" id="toast">Ник @samik_dsd скопирован ✓</div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ============ Telegram smart-open ============ */
+  var TG_USER  = 'samik_dsd';
+  var TG_WEB   = 'https://telegram.me/' + TG_USER;   /* рабочий домен после отключения t.me */
+  var TG_DEEP  = 'tg://resolve?domain=' + TG_USER;   /* прямое открытие приложения */
+  var TG_INTENT= 'intent://resolve?domain=' + TG_USER +
+                 '#Intent;scheme=tg;action=android.intent.action.VIEW;' +
+                 'package=org.telegram.messenger;S.browser_fallback_url=' +
+                 encodeURIComponent(TG_WEB) + ';end';
+
+  var ua = navigator.userAgent;
+  var isAndroid = /Android/i.test(ua);
+  var isIOS = /iPhone|iPad|iPod/i.test(ua) || (/Macintosh/i.test(ua) && navigator.maxTouchPoints > 1);
+  var isMobile = isAndroid || isIOS || window.matchMedia('(pointer:coarse)').matches;
+
+  var modal = document.getElementById('tgModal');
+  var toast = document.getElementById('toast');
+  var failTimer = null, toastTimer = null;
+
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toast.classList.remove('show'); }, 2600);
+  }
+  function openModal(){ modal.classList.add('open'); }
+  function closeModal(){ modal.classList.remove('open'); }
+
+  document.getElementById('tgClose').addEventListener('click', closeModal);
+  modal.addEventListener('click', function(e){ if(e.target === modal) closeModal(); });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeModal(); });
+
+  document.getElementById('tgCopy').addEventListener('click', function(){
+    var text = '@' + TG_USER;
+    function done(){ showToast('Ник @samik_dsd скопирован ✓'); }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(done, function(){ legacyCopy(text); done(); });
+    }else{ legacyCopy(text); done(); }
+  });
+  function legacyCopy(text){
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); }catch(err){}
+    document.body.removeChild(ta);
+  }
+
+  /* если приложение открылось — страница уходит в фон, отменяем fallback-модалку */
+  function watchAppOpen(timeoutMs){
+    clearTimeout(failTimer);
+    var started = Date.now();
+    function onHide(){ clearTimeout(failTimer); }
+    document.addEventListener('visibilitychange', onHide, {once:true});
+    window.addEventListener('blur', onHide, {once:true});
+    failTimer = setTimeout(function(){
+      document.removeEventListener('visibilitychange', onHide);
+      window.removeEventListener('blur', onHide);
+      if(!document.hidden && Date.now() - started >= timeoutMs - 50){
+        openModal(); /* приложение не открылось → показываем запасные способы */
+      }
+    }, timeoutMs);
+  }
+
+  function openTelegram(){
+    if(isAndroid){
+      /* intent: открывает приложение, а если его нет — сам падает на telegram.me */
+      watchAppOpen(1400);
+      window.location.href = TG_INTENT;
+      return;
+    }
+    if(isIOS){
+      /* universal link: Safari сам отдаст ссылку приложению Telegram */
+      watchAppOpen(1400);
+      window.location.href = TG_WEB;
+      return;
+    }
+    /* Desktop: пробуем глубокий протокол приложения, иначе новая вкладка */
+    var handled = false;
+    function mark(){ handled = true; }
+    window.addEventListener('blur', mark, {once:true});
+    var ifr = document.createElement('iframe');
+    ifr.style.display = 'none';
+    ifr.setAttribute('src', TG_DEEP);
+    document.body.appendChild(ifr);
+    setTimeout(function(){
+      window.removeEventListener('blur', mark);
+      if(ifr.parentNode) ifr.parentNode.removeChild(ifr);
+      if(handled || document.hidden) return;      /* приложение открылось */
+      var w = null;
+      try{ w = window.open(TG_WEB, '_blank', 'noopener'); }catch(err){ w = null; }
+      if(!w || w.closed){ openModal(); }          /* вкладку заблокировали → модалка */
+    }, 900);
+  }
+
+  document.querySelectorAll('a.js-tg').forEach(function(link){
+    link.addEventListener('click', function(ev){
+      ev.preventDefault();
+      ev.stopPropagation();
+      openTelegram();
+    });
+  });
+  /* кнопки внутри модалки тоже страхуем */
+  document.getElementById('tgApp').addEventListener('click', function(){ closeModal(); });
+  document.getElementById('tgWeb').addEventListener('click', function(){ closeModal(); });
+
+  /* ============ anchors: smooth scroll ============ */
+  document.querySelectorAll('a.js-anchor').forEach(function(link){
+    link.addEventListener('click', function(ev){
+      ev.preventDefault();
+      var hash = link.getAttribute('href');
+      if(hash === '#top' || !hash || hash === '#'){
+        window.scrollTo({top:0, behavior:'smooth'});
+        return;
+      }
+      var target = document.querySelector(hash);
+      if(target){
+        var offset = target.getBoundingClientRect().top + window.scrollY - 84;
+        window.scrollTo({top: offset, behavior:'smooth'});
+      }else{
+        window.scrollTo({top:0, behavior:'smooth'});
+      }
+    });
+  });
+
+  /* ============ header / progress / sticky ============ */
+  var header = document.getElementById('header'),
+      progress = document.getElementById('progress'),
+      sticky = document.getElementById('stickyCta');
+
+  function onScroll(){
+    var y = window.scrollY || document.documentElement.scrollTop;
+    header.classList.toggle('scrolled', y > 10);
+    sticky.classList.toggle('show', y > 520);
+    var h = document.documentElement.scrollHeight - window.innerHeight;
+    progress.style.width = (h > 0 ? (y / h) * 100 : 0) + '%';
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+
+  /* ============ reveal ============ */
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ e.target.classList.add('visible'); io.unobserve(e.target); }
+    });
+  },{threshold:.12, rootMargin:'0px 0px -40px 0px'});
+  document.querySelectorAll('.reveal').forEach(function(el,i){
+    el.style.transitionDelay = (i % 3) * 0.08 + 's';
+    io.observe(el);
+  });
+
+  /* ============ counters ============ */
+  function animateCount(el){
+    var target = parseFloat(el.dataset.count),
+        dec = parseInt(el.dataset.decimals || 0, 10),
+        suf = el.dataset.suffix || '',
+        dur = 1600, t0 = null;
+    function fmt(v){
+      var s = v.toFixed(dec);
+      if(dec === 0){ s = Math.round(v).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
+      return s + suf;
+    }
+    function step(ts){
+      if(!t0) t0 = ts;
+      var p = Math.min((ts - t0) / dur, 1), e = 1 - Math.pow(1 - p, 3);
+      el.textContent = fmt(target * e);
+      if(p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+  var cio = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ animateCount(e.target); cio.unobserve(e.target); }
+    });
+  },{threshold:.6});
+  document.querySelectorAll('[data-count]').forEach(function(el){ cio.observe(el); });
+
+  /* ============ filters ============ */
+  var chips = document.querySelectorAll('.chip'),
+      cards = document.querySelectorAll('.course');
+  chips.forEach(function(ch){
+    ch.addEventListener('click', function(){
+      chips.forEach(function(c){ c.classList.remove('active'); });
+      ch.classList.add('active');
+      var f = ch.dataset.filter;
+      cards.forEach(function(card){
+        var show = (f === 'all') || (card.dataset.cat === f);
+        card.classList.remove('pop');
+        if(show){
+          card.classList.remove('hide');
+          void card.offsetWidth;
+          card.classList.add('pop');
+        }else{
+          card.classList.add('hide');
+        }
+      });
+    });
+  });
+
+  /* ============ faq ============ */
+  document.querySelectorAll('.faq-item').forEach(function(item){
+    var btn = item.querySelector('.faq-q'),
+        ans = item.querySelector('.faq-a');
+    btn.addEventListener('click', function(){
+      var isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach(function(o){
+        o.classList.remove('open');
+        o.querySelector('.faq-a').style.maxHeight = null;
+      });
+      if(!isOpen){
+        item.classList.add('open');
+        ans.style.maxHeight = ans.scrollHeight + 'px';
+      }
+    });
+  });
+
+  /* ============ parallax orbs ============ */
+  if(window.matchMedia('(pointer:fine)').matches){
+    var orbs = document.querySelectorAll('.orb');
+    window.addEventListener('mousemove', function(ev){
+      var x = (ev.clientX / window.innerWidth - .5),
+          y = (ev.clientY / window.innerHeight - .5);
+      orbs.forEach(function(o, i){
+        var k = (i + 1) * 10;
+        o.style.translate = (x * k) + 'px ' + (y * k) + 'px';
+      });
+    }, {passive:true});
+  }
+})();
+</script>
+</body>
+</html>
